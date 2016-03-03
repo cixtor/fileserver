@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-var dir_path = flag.String("path", "./", "Set the directory path where the server will run")
-var server_port = flag.String("port", "8080", "Set the port number where the server will run")
+var dirPath = flag.String("d", "./", "Directory path where the server will run")
+var serverPort = flag.String("p", "8080", "Port number where the server will run")
 
 func main() {
 	flag.Usage = func() {
@@ -26,10 +26,11 @@ func main() {
 
 	flag.Parse()
 
-	finfo, err := os.Stat(*dir_path)
+	finfo, err := os.Stat(*dirPath)
+
 	if err != nil {
 		flag.Usage()
-		fmt.Printf("\nDirectory does not exists: %s\n", *dir_path)
+		fmt.Printf("\nDirectory does not exists: %s\n", *dirPath)
 		os.Exit(1)
 	}
 
@@ -39,36 +40,34 @@ func main() {
 		os.Exit(1)
 	}
 
-	port_re := regexp.MustCompile(`^[0-9]{2,4}$`)
-	var port_match []string = port_re.FindStringSubmatch(*server_port)
+	re := regexp.MustCompile(`^[0-9]{2,4}$`)
+	match := re.FindStringSubmatch(*serverPort)
 
-	if port_match == nil {
+	if match == nil {
 		flag.Usage()
 		fmt.Printf("\nError. Invalid port number\n")
 		os.Exit(1)
 	}
 
 	fmt.Printf("File Server\n")
-	fmt.Printf("Document root: %s\n", *dir_path)
-	fmt.Printf("Listening on.: http://localhost:%s/\n", *server_port)
+	fmt.Printf("Document root: %s\n", *dirPath)
+	fmt.Printf("Listening on.: http://localhost:%s/\n", *serverPort)
 	fmt.Printf("Started at...: %s\n", time.Now().Format(time.RFC850))
 	fmt.Printf("Press Ctrl-C to quit\n")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func() {
-		for _ = range c {
+		for range c {
 			fmt.Printf("\nServer stopped\n")
 			os.Exit(0)
 		}
 	}()
 
-	http.Handle("/", http.FileServer(http.Dir(*dir_path)))
-	err = http.ListenAndServe(":"+*server_port, nil)
+	http.Handle("/", http.FileServer(http.Dir(*dirPath)))
 
-	if err != nil {
-		flag.Usage()
-		fmt.Println()
+	if err := http.ListenAndServe(":"+*serverPort, nil); err != nil {
 		log.Fatal(err)
+		os.Exit(1)
 	}
 }
