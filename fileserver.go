@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -29,29 +29,23 @@ func main() {
 	finfo, err := os.Stat(*dirPath)
 
 	if err != nil {
-		flag.Usage()
-		fmt.Printf("\nDirectory does not exists: %s\n", *dirPath)
+		fmt.Println("Directory does not exists:", *dirPath)
 		os.Exit(1)
 	}
 
 	if !finfo.IsDir() {
-		flag.Usage()
-		fmt.Printf("\nServing individual files is not allowed\n")
+		fmt.Println("Serving individual files is not possible")
 		os.Exit(1)
 	}
 
-	re := regexp.MustCompile(`^[0-9]{2,4}$`)
-	match := re.FindStringSubmatch(*serverPort)
-
-	if match == nil {
-		flag.Usage()
-		fmt.Printf("\nError. Invalid port number\n")
+	if _, err := strconv.Atoi(*serverPort); err != nil {
+		fmt.Println("Invalid port number, use one over 1024")
 		os.Exit(1)
 	}
 
 	fmt.Printf("File Server\n")
 	fmt.Printf("Document root: %s\n", *dirPath)
-	fmt.Printf("Listening on.: http://localhost:%s/\n", *serverPort)
+	fmt.Printf("Listening on.: http://0.0.0.0:%s/\n", *serverPort)
 	fmt.Printf("Started at...: %s\n", time.Now().Format(time.RFC850))
 	fmt.Printf("Press Ctrl-C to quit\n")
 
