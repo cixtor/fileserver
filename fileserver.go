@@ -11,15 +11,19 @@ import (
 	"time"
 )
 
+// FormatPattern defines the structure of the system logs.
+const FormatPattern = "%s - - [%s] \"%s %d %d\" %f\n"
+
 var dirPath = flag.String("d", "./", "Directory path where the server will run")
 var serverPort = flag.String("p", "8080", "Port number where the server will run")
 
 func main() {
 	flag.Usage = func() {
 		fmt.Println("File Server")
-		fmt.Println("  http://cixtor.com/")
-		fmt.Println("  https://github.com/cixtor/fileserver")
-		fmt.Println("  http://en.wikipedia.org/wiki/File_server")
+		fmt.Println("https://cixtor.com/")
+		fmt.Println("https://github.com/cixtor/fileserver")
+		fmt.Println("https://en.wikipedia.org/wiki/File_server")
+		fmt.Println()
 		fmt.Println("Usage:")
 		flag.PrintDefaults()
 	}
@@ -58,9 +62,14 @@ func main() {
 		}
 	}()
 
-	http.Handle("/", http.FileServer(http.Dir(*dirPath)))
+	mux := http.DefaultServeMux
 
-	if err := http.ListenAndServe(":"+*serverPort, nil); err != nil {
+	mux.Handle("/", http.FileServer(http.Dir(*dirPath)))
+
+	logging := NewLoggingHandler(mux, os.Stderr)
+	server := &http.Server{Addr: ":" + *serverPort, Handler: logging}
+
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
