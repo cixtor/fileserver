@@ -14,10 +14,13 @@ import (
 // FormatPattern defines the structure of the system logs.
 const FormatPattern = "%s - - [%s] \"%s %d %d\" %f\n"
 
-var dirPath = flag.String("d", "./", "Directory path where the server will run")
-var serverPort = flag.String("p", "8080", "Port number where the server will run")
+var directory string
+var serverPort string
 
-func main() {
+func init() {
+	flag.StringVar(&directory, "d", "./", "Directory path where the server will run")
+	flag.StringVar(&serverPort, "p", "8080", "Port number where the server will run")
+
 	flag.Usage = func() {
 		fmt.Println("File Server")
 		fmt.Println("https://cixtor.com/")
@@ -27,13 +30,15 @@ func main() {
 		fmt.Println("Usage:")
 		flag.PrintDefaults()
 	}
+}
 
+func main() {
 	flag.Parse()
 
-	finfo, err := os.Stat(*dirPath)
+	finfo, err := os.Stat(directory)
 
 	if err != nil {
-		fmt.Println("Directory does not exists:", *dirPath)
+		fmt.Println("Directory does not exists:", directory)
 		os.Exit(1)
 	}
 
@@ -42,14 +47,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	if _, err := strconv.Atoi(*serverPort); err != nil {
+	if _, err := strconv.Atoi(serverPort); err != nil {
 		fmt.Println("Invalid port number, use one over 1024")
 		os.Exit(1)
 	}
 
 	fmt.Printf("File Server\n")
-	fmt.Printf("Document root: %s\n", *dirPath)
-	fmt.Printf("Listening on.: http://0.0.0.0:%s/\n", *serverPort)
+	fmt.Printf("Document root: %s\n", directory)
+	fmt.Printf("Listening on.: http://0.0.0.0:%s/\n", serverPort)
 	fmt.Printf("Started at...: %s\n", time.Now().Format(time.RFC850))
 	fmt.Printf("Press Ctrl-C to quit\n")
 
@@ -64,10 +69,10 @@ func main() {
 
 	mux := http.DefaultServeMux
 
-	mux.Handle("/", http.FileServer(http.Dir(*dirPath)))
+	mux.Handle("/", http.FileServer(http.Dir(directory)))
 
 	logging := NewLoggingHandler(mux, os.Stderr)
-	server := &http.Server{Addr: ":" + *serverPort, Handler: logging}
+	server := &http.Server{Addr: ":" + serverPort, Handler: logging}
 
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
