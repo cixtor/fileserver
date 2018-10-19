@@ -38,25 +38,25 @@ func main() {
 	finfo, err := os.Stat(directory)
 
 	if err != nil {
-		fmt.Println("Directory does not exists:", directory)
+		fmt.Printf("cannot access directory `%s`\n", directory)
 		os.Exit(1)
 	}
 
 	if !finfo.IsDir() {
-		fmt.Println("Serving individual files is not possible")
+		fmt.Println("file cannot be used as a directory")
 		os.Exit(1)
 	}
 
 	if _, err := strconv.Atoi(serverPort); err != nil {
-		fmt.Println("Invalid port number, use one over 1024")
+		fmt.Printf("cannot start server on port `:%s`\n", serverPort)
 		os.Exit(1)
 	}
 
 	fmt.Printf("File Server\n")
-	fmt.Printf("Document root: %s\n", directory)
-	fmt.Printf("Listening on.: http://0.0.0.0:%s/\n", serverPort)
-	fmt.Printf("Started at...: %s\n", time.Now().Format(time.RFC850))
-	fmt.Printf("Press Ctrl-C to quit\n")
+	fmt.Printf("Listening on http://0.0.0.0:%s\n", serverPort)
+	fmt.Printf("Started at %s\n", time.Now().Format(time.ANSIC))
+	fmt.Printf("Document root is %s\n", directory)
+	fmt.Printf("Press Ctrl-C to quit.\n")
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
