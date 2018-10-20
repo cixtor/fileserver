@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -35,9 +36,11 @@ func init() {
 func main() {
 	flag.Parse()
 
-	finfo, err := os.Stat(directory)
+	var err error
+	var finfo os.FileInfo
+	var abspath string
 
-	if err != nil {
+	if finfo, err = os.Stat(directory); err != nil {
 		fmt.Printf("cannot access directory `%s`\n", directory)
 		os.Exit(1)
 	}
@@ -47,15 +50,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	if _, err := strconv.Atoi(serverPort); err != nil {
+	if _, err = strconv.Atoi(serverPort); err != nil {
 		fmt.Printf("cannot start server on port `:%s`\n", serverPort)
+		os.Exit(1)
+	}
+
+	if abspath, err = filepath.Abs(directory); err != nil {
+		fmt.Println("filepath.Abs", err)
 		os.Exit(1)
 	}
 
 	fmt.Printf("File Server\n")
 	fmt.Printf("Listening on http://0.0.0.0:%s\n", serverPort)
 	fmt.Printf("Started at %s\n", time.Now().Format(time.ANSIC))
-	fmt.Printf("Document root is %s\n", directory)
+	fmt.Printf("Document root is %s\n", abspath)
 	fmt.Printf("Press Ctrl-C to quit.\n")
 
 	c := make(chan os.Signal, 1)
@@ -68,14 +76,8 @@ func main() {
 	}()
 
 	mux := http.DefaultServeMux
-
+	mog := NewLoggingHandler(mux, os.Stderr)
 	mux.Handle("/", http.FileServer(http.Dir(directory)))
-
-	logging := NewLoggingHandler(mux, os.Stderr)
-	server := &http.Server{Addr: ":" + serverPort, Handler: logging}
-
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
+	server := &http.Server{Addr: ":" + serverPort, Handler: mog}
+	log.Fatal(server.ListenAndServe())
 }
