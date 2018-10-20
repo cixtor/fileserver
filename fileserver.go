@@ -12,9 +12,6 @@ import (
 	"time"
 )
 
-// FormatPattern defines the structure of the system logs.
-const FormatPattern = "%s - - [%s] \"%s %d %d\" %f\n"
-
 var directory string
 var serverPort string
 

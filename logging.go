@@ -35,17 +35,18 @@ func NewLoggingHandler(handler http.Handler, out io.Writer) http.Handler {
 
 // Log sends the access log string to the available writer.
 func (r *LogRecord) Log(out io.Writer) {
-	timeFormatted := r.time.Format("02/Jan/2006 03:04:05")
-	requestLine := fmt.Sprintf("%s %s %s", r.method, r.uri, r.protocol)
-
-	fmt.Fprintf(out,
-		FormatPattern,
+	fmt.Fprintf(
+		out,
+		"%s - - [%s] \"%s %s %s\" %d %d %.4fs\n",
 		r.ip,
-		timeFormatted,
-		requestLine,
+		r.time.Format(`02/Jan/2006:15:04:05 -0700`),
+		r.method,
+		r.uri,
+		r.protocol,
 		r.status,
 		r.responseBytes,
-		r.elapsedTime.Seconds())
+		r.elapsedTime.Seconds(),
+	)
 }
 
 // Write writes the data to the connection as part of an HTTP reply.
