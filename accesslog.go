@@ -11,14 +11,14 @@ import (
 type AccessLog struct {
 	http.ResponseWriter
 
-	addr          string
-	time          time.Time
-	method        string
-	uri           string
-	protocol      string
-	status        int
-	responseBytes int64
-	elapsedTime   time.Duration
+	addr      string
+	time      time.Time
+	method    string
+	uri       string
+	protocol  string
+	status    int
+	totalSize int64
+	elapsed   time.Duration
 }
 
 // Log sends the access log string to the available writer.
@@ -32,15 +32,15 @@ func (r *AccessLog) Log(out io.Writer) {
 		r.uri,
 		r.protocol,
 		r.status,
-		r.responseBytes,
-		r.elapsedTime.Seconds(),
+		r.totalSize,
+		r.elapsed.Seconds(),
 	)
 }
 
 // Write writes the data to the connection as part of an HTTP reply.
 func (r *AccessLog) Write(p []byte) (int, error) {
 	written, err := r.ResponseWriter.Write(p)
-	r.responseBytes += int64(written)
+	r.totalSize += int64(written)
 	return written, err
 }
 
