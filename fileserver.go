@@ -73,7 +73,7 @@ func main() {
 	}()
 
 	mux := http.DefaultServeMux
-	mog := NewLoggingHandler(mux, os.Stderr)
+	mog := NewLogger(mux, os.Stderr)
 	mux.Handle("/", http.FileServer(http.Dir(directory)))
 	server := &http.Server{Addr: ":" + serverPort, Handler: mog}
 	log.Fatal(server.ListenAndServe())
