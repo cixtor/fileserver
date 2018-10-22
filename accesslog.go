@@ -45,10 +45,10 @@ func (r *AccessLog) Write(p []byte) (int, error) {
 }
 
 // WriteHeader sends an HTTP response header with status code.
-// If WriteHeader is not called explicitly, the first call to Write
-// will trigger an implicit WriteHeader(http.StatusOK).
-// Thus explicit calls to WriteHeader are mainly used to
-// send error codes.
+//
+// If v.WriteHeader is not called explicitly, the first call to v.Write will
+// trigger an implicit v.WriteHeader(http.StatusOK). Thus explicit calls to
+// v.WriteHeader are mainly used to send error codes.
 func (r *AccessLog) WriteHeader(status int) {
 	r.status = status
 	r.ResponseWriter.WriteHeader(status)

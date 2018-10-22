@@ -28,13 +28,14 @@ func (l *Logger) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 	record := &AccessLog{
 		ResponseWriter: rw,
-		addr:           addr,
-		time:           time.Time{},
-		method:         r.Method,
-		uri:            r.RequestURI,
-		protocol:       r.Proto,
-		status:         http.StatusOK,
-		elapsed:        time.Duration(0),
+
+		addr:     addr,
+		time:     time.Time{},
+		method:   r.Method,
+		uri:      r.RequestURI,
+		protocol: r.Proto,
+		status:   http.StatusOK,
+		elapsed:  time.Duration(0),
 	}
 
 	startTime := time.Now()
