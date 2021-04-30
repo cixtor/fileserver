@@ -17,7 +17,7 @@ go get -u github.com/cixtor/fileserver
 ```
 $ fileserver -p 5690
 File Server
-Listening on http://0.0.0.0:5690
+Listening on http://localhost:5690
 Started at Wed Jan 30 13:36:26 2019
 Document root is /Users/cixtor/public_html
 Press Ctrl-C to quit.
