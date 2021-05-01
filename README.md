@@ -14,10 +14,25 @@ go get -u github.com/cixtor/fileserver
 
 ## Usage
 
+Run `fileserver` to start a file server in the current working directory, listening on a random ephemeral port number.
+
 ```
-$ fileserver -p 5690
+$ fileserver
 File Server
-Listening on http://localhost:5690
+Listening on http://localhost:55265
+Started at Wed Jan 30 13:36:26 2019
+Document root is /Users/cixtor/public_html
+Press Ctrl-C to quit.
+^C
+Server stopped
+```
+
+Use `-d` to point the file server to a specific directory, and `-p` to use a specific port number, like so:
+
+```
+$ fileserver -p 8080
+File Server
+Listening on http://localhost:8080
 Started at Wed Jan 30 13:36:26 2019
 Document root is /Users/cixtor/public_html
 Press Ctrl-C to quit.
